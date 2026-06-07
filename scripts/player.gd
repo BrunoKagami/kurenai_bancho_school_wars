@@ -18,6 +18,9 @@ const SIDE_TOP_LIMIT := 478.0
 @export var move_speed := 230.0
 @export var jump_speed := 720.0
 @export var gravity := 1750.0
+@export var jump_hold_force := 1050.0
+@export var jump_hold_duration := 0.18
+@export var jump_cut_multiplier := 0.45
 @export var max_health := 100.0
 @export var max_stamina := 100.0
 @export var jab_stamina_cost := 12.0
@@ -29,6 +32,8 @@ var facing := 1.0
 var air_facing := 1.0
 var jump_height := 0.0
 var vertical_speed := 0.0
+var jump_hold_timer := 0.0
+var jump_cut_applied := false
 var attacking := false
 var aerial_kick := false
 var aerial_kick_falling := false
@@ -72,16 +77,27 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and jump_height <= 0.0 and not attacking:
 		air_facing = facing
 		vertical_speed = jump_speed
+		jump_hold_timer = jump_hold_duration
+		jump_cut_applied = false
 		animated_sprite.play("jump")
 
 	if jump_height > 0.0 or vertical_speed > 0.0:
 		if aerial_kick:
 			flying_kick_pose_timer = maxf(flying_kick_pose_timer - delta, 0.0)
+		if Input.is_action_pressed("jump") and jump_hold_timer > 0.0 and vertical_speed > 0.0:
+			vertical_speed += jump_hold_force * delta
+			jump_hold_timer -= delta
+		elif Input.is_action_just_released("jump") and vertical_speed > 0.0 and not jump_cut_applied:
+			vertical_speed *= jump_cut_multiplier
+			jump_cut_applied = true
+			jump_hold_timer = 0.0
 		jump_height += vertical_speed * delta
 		vertical_speed -= gravity * delta
 		if jump_height <= 0.0:
 			jump_height = 0.0
 			vertical_speed = 0.0
+			jump_hold_timer = 0.0
+			jump_cut_applied = false
 			attack_area.monitoring = false
 			if aerial_kick:
 				_start_flying_kick_recovery()
