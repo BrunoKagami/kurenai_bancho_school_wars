@@ -17,7 +17,7 @@ func take_hit(direction: float) -> void:
 
 
 func _draw() -> void:
-	_draw_shadow_ellipse(Vector2(0.0, -14.0), Vector2(52.0, 11.0), Color(0.05, 0.06, 0.09, 0.3))
+	_draw_shadow_ellipse(Vector2(0.0, -18.0), Vector2(55.0, 20.0), Color(0.05, 0.06, 0.09, 0.3))
 
 
 func _draw_shadow_ellipse(center: Vector2, radius: Vector2, color: Color) -> void:
