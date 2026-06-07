@@ -1,0 +1,266 @@
+[gd_scene format=3 uid="uid://du5ntqhhkrahx"]
+
+[ext_resource type="Texture2D" uid="uid://bbmbpdl4sips6" path="res://sprites/background/dojo.png" id="1_dojo"]
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://84kgxq4yhil1" path="res://scripts/training_dummy.gd" id="3_dummy"]
+[ext_resource type="Script" uid="uid://p4t7f0mwembg" path="res://scripts/ui.gd" id="4_ui"]
+[ext_resource type="Texture2D" uid="uid://crr8ry6514jsn" path="res://sprites/woodDoll/Wood_doll1.png" id="5_doll1"]
+[ext_resource type="Texture2D" uid="uid://ch0k71hnx8xlj" path="res://sprites/woodDoll/Wood_doll2.png" id="6_doll2"]
+[ext_resource type="Texture2D" uid="uid://dn55ebde5ine4" path="res://sprites/woodDoll/Wood_doll3.png" id="7_doll3"]
+[ext_resource type="Texture2D" uid="uid://b08pfuu3rgs20" path="res://sprites/UI/Kurenai_Face.png" id="8_face"]
+[ext_resource type="Texture2D" uid="uid://de2gwixd53nwv" path="res://sprites/UI/Name.png" id="9_name"]
+[ext_resource type="Texture2D" uid="uid://cbo0vqdjhq6wv" path="res://sprites/UI/Bar_borda_inicio.png" id="10_bar_start"]
+[ext_resource type="Texture2D" uid="uid://d4aljwrimbm7i" path="res://sprites/UI/Bar_borda_meio.png" id="11_bar_middle"]
+[ext_resource type="Texture2D" uid="uid://cncy7iilnu1g6" path="res://sprites/UI/Bar_borda_final.png" id="12_bar_end"]
+[ext_resource type="Texture2D" uid="uid://ct8ltfws3yci" path="res://sprites/UI/Preenchimento_Vazio.png" id="13_empty_fill"]
+[ext_resource type="Texture2D" uid="uid://b3j11k3hixq25" path="res://sprites/UI/Preenchimento_Vida.png" id="14_health_fill"]
+[ext_resource type="Texture2D" uid="uid://nt0dk7fvic0o" path="res://sprites/UI/Preenchimento_Stamina.png" id="15_stamina_fill"]
+
+[sub_resource type="RectangleShape2D" id="DummyObstacleShape"]
+size = Vector2(62, 22)
+
+[sub_resource type="SpriteFrames" id="DollAnimations"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_doll2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_doll3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_doll2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_doll1")
+}],
+"loop": false,
+"name": &"hit",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_doll1")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="DummyShape"]
+size = Vector2(70, 24)
+
+[sub_resource type="StyleBoxFlat" id="HudPanel"]
+bg_color = Color(0.047, 0.059, 0.09, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.19, 0.25, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="Main" type="Node2D" unique_id=1508892304]
+
+[node name="World" type="Node2D" parent="." unique_id=1439603940]
+y_sort_enabled = true
+
+[node name="Dojo" type="Sprite2D" parent="World" unique_id=108163951]
+z_index = -1000
+scale = Vector2(1.52, 1.52)
+texture = ExtResource("1_dojo")
+centered = false
+
+[node name="TrainingDummy" type="StaticBody2D" parent="World" unique_id=119337755]
+position = Vector2(930, 465)
+collision_layer = 4
+script = ExtResource("3_dummy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TrainingDummy" unique_id=971639636]
+position = Vector2(0, -11)
+shape = SubResource("DummyObstacleShape")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="World/TrainingDummy" unique_id=351161979]
+position = Vector2(0, -90)
+scale = Vector2(1.2, 1.2)
+sprite_frames = SubResource("DollAnimations")
+animation = &"idle"
+
+[node name="Hurtbox" type="Area2D" parent="World/TrainingDummy" unique_id=226226205]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/TrainingDummy/Hurtbox" unique_id=144774094]
+position = Vector2(0, -12)
+shape = SubResource("DummyShape")
+
+[node name="Player" parent="World" unique_id=382284788 instance=ExtResource("2_player")]
+position = Vector2(480, 465)
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=579267340]
+script = ExtResource("4_ui")
+
+[node name="PlayerHUD" type="Control" parent="UI" unique_id=17970072]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 14.0
+offset_top = 12.0
+offset_right = 404.0
+offset_bottom = 124.0
+mouse_filter = 2
+
+[node name="FaceShadow" type="ColorRect" parent="UI/PlayerHUD" unique_id=839880013]
+layout_mode = 0
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 101.0
+offset_bottom = 101.0
+mouse_filter = 2
+color = Color(0.015, 0.015, 0.02, 0.92)
+
+[node name="Face" type="TextureRect" parent="UI/PlayerHUD" unique_id=1241546410]
+layout_mode = 0
+offset_right = 97.0
+offset_bottom = 92.0
+mouse_filter = 2
+texture = ExtResource("8_face")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="TextureRect" parent="UI/PlayerHUD" unique_id=1829248798]
+layout_mode = 0
+offset_left = 105.0
+offset_top = 1.0
+offset_right = 341.0
+offset_bottom = 32.0
+mouse_filter = 2
+texture = ExtResource("9_name")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HealthBar" type="TextureProgressBar" parent="UI/PlayerHUD" unique_id=2076877044]
+layout_mode = 0
+offset_left = 109.0
+offset_top = 39.0
+offset_right = 383.0
+offset_bottom = 58.0
+mouse_filter = 2
+value = 100.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_right = 2
+texture_under = ExtResource("13_empty_fill")
+texture_progress = ExtResource("14_health_fill")
+
+[node name="HealthFrameStart" type="TextureRect" parent="UI/PlayerHUD" unique_id=924069552]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 34.0
+offset_right = 115.0
+offset_bottom = 64.0
+mouse_filter = 2
+texture = ExtResource("10_bar_start")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HealthFrameMiddle" type="TextureRect" parent="UI/PlayerHUD" unique_id=102961985]
+layout_mode = 0
+offset_left = 115.0
+offset_top = 34.0
+offset_right = 377.0
+offset_bottom = 64.0
+mouse_filter = 2
+texture = ExtResource("11_bar_middle")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="HealthFrameEnd" type="TextureRect" parent="UI/PlayerHUD" unique_id=328211710]
+layout_mode = 0
+offset_left = 377.0
+offset_top = 34.0
+offset_right = 389.0
+offset_bottom = 64.0
+mouse_filter = 2
+texture = ExtResource("12_bar_end")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StaminaBar" type="TextureProgressBar" parent="UI/PlayerHUD" unique_id=872451195]
+layout_mode = 0
+offset_left = 109.0
+offset_top = 70.0
+offset_right = 299.0
+offset_bottom = 89.0
+mouse_filter = 2
+value = 100.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_right = 2
+texture_under = ExtResource("13_empty_fill")
+texture_progress = ExtResource("15_stamina_fill")
+
+[node name="StaminaFrameStart" type="TextureRect" parent="UI/PlayerHUD" unique_id=1343255413]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 65.0
+offset_right = 115.0
+offset_bottom = 95.0
+mouse_filter = 2
+texture = ExtResource("10_bar_start")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StaminaFrameMiddle" type="TextureRect" parent="UI/PlayerHUD" unique_id=670533682]
+layout_mode = 0
+offset_left = 115.0
+offset_top = 65.0
+offset_right = 293.0
+offset_bottom = 95.0
+mouse_filter = 2
+texture = ExtResource("11_bar_middle")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="StaminaFrameEnd" type="TextureRect" parent="UI/PlayerHUD" unique_id=517376422]
+layout_mode = 0
+offset_left = 293.0
+offset_top = 65.0
+offset_right = 305.0
+offset_bottom = 95.0
+mouse_filter = 2
+texture = ExtResource("12_bar_end")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Controls" type="PanelContainer" parent="UI" unique_id=785701266]
+offset_left = 22.0
+offset_top = 450.0
+offset_right = 570.0
+offset_bottom = 516.0
+theme_override_styles/panel = SubResource("HudPanel")
+
+[node name="Margin" type="MarginContainer" parent="UI/Controls" unique_id=694051597]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="Label" type="Label" parent="UI/Controls/Margin" unique_id=1175396548]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.93, 0.94, 0.91, 1)
+theme_override_font_sizes/font_size = 17
+text = "Mover: WASD / Setas    Pular: ESPACO    Soco: J / Z"
+
+[node name="ToggleControls" type="Button" parent="UI" unique_id=1390395140]
+offset_left = 580.0
+offset_top = 466.0
+offset_right = 710.0
+offset_bottom = 504.0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.93, 0.94, 0.91, 1)
+theme_override_colors/font_hover_color = Color(1, 0.87, 0.67, 1)
+theme_override_font_sizes/font_size = 15
+text = "Ocultar dicas"
