@@ -13,6 +13,9 @@ func _ready() -> void:
 	health_bar.max_value = player.max_health
 	stamina_bar.max_value = player.max_stamina
 	_update_player_stats(player.health, player.stamina)
+	if DisplayServer.is_touchscreen_available():
+		controls_panel.hide()
+		toggle_button.hide()
 
 
 func _update_player_stats(health: float, stamina: float) -> void:

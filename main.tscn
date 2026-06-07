@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://du5ntqhhkrahx"]
+[gd_scene load_steps=21 format=3 uid="uid://du5ntqhhkrahx"]
 
 [ext_resource type="Texture2D" uid="uid://bbmbpdl4sips6" path="res://sprites/background/dojo.png" id="1_dojo"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2_player"]
@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://ct8ltfws3yci" path="res://sprites/UI/Preenchimento_Vazio.png" id="13_empty_fill"]
 [ext_resource type="Texture2D" uid="uid://b3j11k3hixq25" path="res://sprites/UI/Preenchimento_Vida.png" id="14_health_fill"]
 [ext_resource type="Texture2D" uid="uid://nt0dk7fvic0o" path="res://sprites/UI/Preenchimento_Stamina.png" id="15_stamina_fill"]
+[ext_resource type="Script" path="res://scripts/mobile_controls.gd" id="16_mobile_controls"]
 
 [sub_resource type="RectangleShape2D" id="DummyObstacleShape"]
 size = Vector2(62, 22)
@@ -264,3 +265,13 @@ theme_override_colors/font_color = Color(0.93, 0.94, 0.91, 1)
 theme_override_colors/font_hover_color = Color(1, 0.87, 0.67, 1)
 theme_override_font_sizes/font_size = 15
 text = "Ocultar dicas"
+
+[node name="MobileControls" type="Control" parent="UI"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("16_mobile_controls")

@@ -5,6 +5,7 @@ cd /d "%~dp0"
 set "PORT=8060"
 set "GAME_FILE=Kurenai_Bancho_School_Wars.html"
 set "GAME_URL=http://127.0.0.1:%PORT%/%GAME_FILE%"
+set "LAN_IP="
 set "PYTHON_EXE="
 
 call :check_export
@@ -54,7 +55,7 @@ if not defined PYTHON_EXE (
 
 :start_server
 echo Iniciando servidor local...
-start "Kurenai Web Server" /min "%PYTHON_EXE%" %PYTHON_ARGS% -m http.server %PORT% --bind 127.0.0.1
+start "Kurenai Web Server" /min "%PYTHON_EXE%" %PYTHON_ARGS% -m http.server %PORT% --bind 0.0.0.0
 
 call :wait_for_server
 if errorlevel 1 (
@@ -67,9 +68,17 @@ if errorlevel 1 (
 )
 
 start "" "%GAME_URL%"
+for /f "usebackq delims=" %%I in (`powershell -NoProfile -Command "$ip = Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' -and $_.InterfaceOperationalStatus -eq 'Up' } | Sort-Object InterfaceMetric | Select-Object -First 1 -ExpandProperty IPAddress; if ($ip) { $ip }"`) do set "LAN_IP=%%I"
 echo.
 echo Jogo aberto em:
 echo %GAME_URL%
+if defined LAN_IP (
+	echo.
+	echo No celular conectado ao mesmo Wi-Fi, abra:
+	echo http://%LAN_IP%:%PORT%/%GAME_FILE%
+	echo.
+	echo Se o Windows perguntar, permita o acesso na rede privada.
+)
 echo.
 echo Para encerrar o servidor, feche a janela "Kurenai Web Server".
 timeout /t 4 /nobreak >nul
