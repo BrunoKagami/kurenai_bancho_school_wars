@@ -13,14 +13,22 @@ var joystick_value := Vector2.ZERO
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	visible = DisplayServer.is_touchscreen_available()
+	visible = _should_show_mobile_controls()
 	set_process_input(visible)
 	queue_redraw()
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_RESIZED:
+		visible = _should_show_mobile_controls()
+		set_process_input(visible)
 		queue_redraw()
+
+
+func _should_show_mobile_controls() -> bool:
+	if DisplayServer.is_touchscreen_available():
+		return true
+	return OS.has_feature("web") and DisplayServer.window_get_size().x <= 980
 
 
 func _input(event: InputEvent) -> void:

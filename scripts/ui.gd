@@ -13,7 +13,7 @@ func _ready() -> void:
 	health_bar.max_value = player.max_health
 	stamina_bar.max_value = player.max_stamina
 	_update_player_stats(player.health, player.stamina)
-	if DisplayServer.is_touchscreen_available():
+	if _should_show_mobile_controls():
 		controls_panel.hide()
 		toggle_button.hide()
 
@@ -26,3 +26,9 @@ func _update_player_stats(health: float, stamina: float) -> void:
 func _toggle_controls() -> void:
 	controls_panel.visible = not controls_panel.visible
 	toggle_button.text = "Ocultar dicas" if controls_panel.visible else "Mostrar dicas"
+
+
+func _should_show_mobile_controls() -> bool:
+	if DisplayServer.is_touchscreen_available():
+		return true
+	return OS.has_feature("web") and DisplayServer.window_get_size().x <= 980
