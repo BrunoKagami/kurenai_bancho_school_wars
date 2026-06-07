@@ -63,6 +63,7 @@ var action_lock_timer := 0.0
 var attack_hit_checked := false
 var health := 100.0
 var stamina := 100.0
+var hurt_flash_timer := 0.0
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_area: Area2D = $AttackArea
@@ -82,6 +83,7 @@ func _physics_process(delta: float) -> void:
 	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
 	state_time += delta
+	hurt_flash_timer = maxf(hurt_flash_timer - delta, 0.0)
 	_update_action_lock(delta)
 	_update_state(delta, input_vector)
 	_recover_stamina(delta)
@@ -93,6 +95,14 @@ func _physics_process(delta: float) -> void:
 
 	_update_animation(input_vector)
 	queue_redraw()
+
+
+func take_hit(damage: float, direction: float) -> void:
+	if state == PlayerState.JUMP_LAND or state == PlayerState.FLYING_KICK_LAND:
+		return
+	health = maxf(health - damage, 0.0)
+	hurt_flash_timer = 0.12
+	stats_changed.emit(health, stamina)
 
 
 func _update_state(delta: float, input_vector: Vector2) -> void:
@@ -357,6 +367,7 @@ func _show_jump_up_frame(frame_index: int) -> void:
 
 func _update_animation(input_vector: Vector2) -> void:
 	animated_sprite.flip_h = (air_facing if _is_airborne_state() or state == PlayerState.JUMP_PREPARE or state == PlayerState.JUMP_LAND or state == PlayerState.FLYING_KICK_LAND else facing) < 0.0
+	animated_sprite.modulate = Color(1.0, 0.55, 0.55, 1.0) if hurt_flash_timer > 0.0 else Color.WHITE
 
 	if _is_airborne_state():
 		animated_sprite.position = Vector2(0.0, -JUMP_SPRITE_GROUND_OFFSET - jump_height * jump_visual_height_scale)

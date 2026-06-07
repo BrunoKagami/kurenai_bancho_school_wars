@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://b3j11k3hixq25" path="res://sprites/UI/Preenchimento_Vida.png" id="14_health_fill"]
 [ext_resource type="Texture2D" uid="uid://nt0dk7fvic0o" path="res://sprites/UI/Preenchimento_Stamina.png" id="15_stamina_fill"]
 [ext_resource type="Script" uid="uid://kolthww6f1fp" path="res://scripts/mobile_controls.gd" id="16_mobile_controls"]
+[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="17_enemy"]
 
 [sub_resource type="RectangleShape2D" id="DummyObstacleShape"]
 size = Vector2(62, 22)
@@ -99,6 +100,10 @@ shape = SubResource("DummyShape")
 
 [node name="Player" parent="World" unique_id=382284788 instance=ExtResource("2_player")]
 position = Vector2(480, 465)
+
+[node name="ShadowEnemy" parent="World" unique_id=716254643 instance=ExtResource("17_enemy")]
+position = Vector2(760, 465)
+active_on_start = false
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=579267340]
 script = ExtResource("4_ui")
