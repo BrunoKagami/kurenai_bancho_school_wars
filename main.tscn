@@ -79,7 +79,7 @@ scale = Vector2(1.52, 1.52)
 texture = ExtResource("1_dojo")
 centered = false
 
-[node name="TrainingDummy" type="StaticBody2D" parent="World" unique_id=119337755]
+[node name="TrainingDummy" type="StaticBody2D" parent="World" groups=["hud_target"] unique_id=119337755]
 position = Vector2(930, 465)
 collision_layer = 4
 script = ExtResource("3_dummy")
@@ -150,6 +150,31 @@ texture = ExtResource("9_name")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="HealthBackground" type="TextureRect" parent="UI/PlayerHUD"]
+layout_mode = 0
+offset_left = 134.0
+offset_top = 39.0
+offset_right = 408.0
+offset_bottom = 58.0
+mouse_filter = 2
+texture = ExtResource("13_empty_fill")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="HealthDamageBar" type="TextureProgressBar" parent="UI/PlayerHUD"]
+layout_mode = 0
+offset_left = 134.0
+offset_top = 39.0
+offset_right = 408.0
+offset_bottom = 58.0
+mouse_filter = 2
+modulate = Color(0.48, 0.11, 0.11, 1)
+value = 100.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_right = 2
+texture_progress = ExtResource("14_health_fill")
+
 [node name="HealthBar" type="TextureProgressBar" parent="UI/PlayerHUD" unique_id=2076877044]
 layout_mode = 0
 offset_left = 134.0
@@ -161,7 +186,6 @@ value = 100.0
 nine_patch_stretch = true
 stretch_margin_left = 2
 stretch_margin_right = 2
-texture_under = ExtResource("13_empty_fill")
 texture_progress = ExtResource("14_health_fill")
 
 [node name="HealthFrameStart" type="TextureRect" parent="UI/PlayerHUD" unique_id=924069552]

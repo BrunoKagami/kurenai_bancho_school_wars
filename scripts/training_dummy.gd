@@ -1,6 +1,18 @@
 extends StaticBody2D
 
+signal target_status_changed(
+	target: Node,
+	target_name: String,
+	health: float,
+	max_health: float,
+	previous_health: float,
+	portrait: Texture2D,
+	animate_damage: bool
+)
+
 const SHADOW_ENEMY_SCENE: PackedScene = preload("res://scenes/enemy.tscn")
+const WOOD_FACE: Texture2D = preload("res://sprites/woodDoll/Wood_Face.png")
+const DISPLAY_HEALTH := 100.0
 
 @export var hits_per_shadow_wave := 5
 @export var shadow_spawn_center := Vector2(760.0, 465.0)
@@ -22,6 +34,15 @@ func take_hit(
 ) -> void:
 	if reacting_to_hit:
 		return
+	target_status_changed.emit(
+		self,
+		"BONECO DE TREINO",
+		DISPLAY_HEALTH,
+		DISPLAY_HEALTH,
+		DISPLAY_HEALTH,
+		WOOD_FACE,
+		false
+	)
 	hit_count += 1
 	if hit_count >= hits_per_shadow_wave:
 		hit_count = 0

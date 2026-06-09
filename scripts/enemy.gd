@@ -5,7 +5,9 @@ signal target_status_changed(
 	enemy_name: String,
 	health: float,
 	max_health: float,
-	previous_health: float
+	previous_health: float,
+	portrait: Texture2D,
+	animate_damage: bool
 )
 
 enum EnemyState {
@@ -125,7 +127,7 @@ func take_hit(
 		return
 	var previous_health: float = health
 	health = maxf(health - damage, 0.0)
-	target_status_changed.emit(self, enemy_name, health, max_health, previous_health)
+	target_status_changed.emit(self, enemy_name, health, max_health, previous_health, null, true)
 	if direction != 0.0:
 		facing = -1.0 if direction > 0.0 else 1.0
 	if health <= 0.0:

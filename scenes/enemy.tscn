@@ -103,7 +103,7 @@ animations = [{
 "speed": 10.0
 }]
 
-[node name="Enemy" type="CharacterBody2D" groups=["enemy"]]
+[node name="Enemy" type="CharacterBody2D" groups=["enemy", "hud_target"]]
 collision_layer = 4
 collision_mask = 1
 script = ExtResource("1_enemy")
