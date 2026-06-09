@@ -78,6 +78,8 @@ var knockback_velocity: float = 0.0
 var target: Node2D
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var floating_health_background: ColorRect = $FloatingHealthBackground
+@onready var floating_health_bar: ColorRect = $FloatingHealthBackground/FloatingHealthBar
 @onready var body_shape: CollisionShape2D = $CollisionShape2D
 @onready var hurt_shape: CollisionShape2D = $Hurtbox/CollisionShape2D
 @onready var attack_area: Area2D = $AttackArea
@@ -86,6 +88,7 @@ var target: Node2D
 
 func _ready() -> void:
 	health = max_health
+	_update_floating_health()
 	target = get_tree().get_first_node_in_group("player")
 	previous_position = global_position
 	attack_area.monitoring = false
@@ -127,6 +130,7 @@ func take_hit(
 		return
 	var previous_health: float = health
 	health = maxf(health - damage, 0.0)
+	_update_floating_health()
 	target_status_changed.emit(self, enemy_name, health, max_health, previous_health, null, true)
 	if direction != 0.0:
 		facing = -1.0 if direction > 0.0 else 1.0
@@ -146,6 +150,7 @@ func activate() -> void:
 	process_mode = Node.PROCESS_MODE_INHERIT
 	set_physics_process(true)
 	health = max_health
+	_update_floating_health()
 	previous_position = global_position
 	_restore_body_collision()
 	hurt_shape.disabled = false
@@ -162,6 +167,12 @@ func _deactivate() -> void:
 	body_shape.disabled = true
 	hurt_shape.disabled = true
 	attack_area.monitoring = false
+
+
+func _update_floating_health() -> void:
+	var health_ratio: float = clampf(health / maxf(max_health, 0.01), 0.0, 1.0)
+	floating_health_bar.size.x = 64.0 * health_ratio
+	floating_health_background.visible = health > 0.0
 
 
 func _update_state() -> void:

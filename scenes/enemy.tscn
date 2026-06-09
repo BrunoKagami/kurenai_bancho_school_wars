@@ -119,6 +119,24 @@ modulate = Color(0.08, 0.075, 0.095, 0.95)
 sprite_frames = SubResource("EnemyAnimations")
 animation = &"idle"
 
+[node name="FloatingHealthBackground" type="ColorRect" parent="."]
+z_index = 20
+offset_left = -34.0
+offset_top = -205.0
+offset_right = 34.0
+offset_bottom = -195.0
+mouse_filter = 2
+color = Color(0.025, 0.025, 0.03, 0.92)
+
+[node name="FloatingHealthBar" type="ColorRect" parent="FloatingHealthBackground"]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 66.0
+offset_bottom = 8.0
+mouse_filter = 2
+color = Color(0.78, 0.015, 0.025, 1)
+
 [node name="Hurtbox" type="Area2D" parent="."]
 collision_layer = 2
 collision_mask = 0
