@@ -12,6 +12,9 @@ enum PlayerState {
 	FLYING_KICK,
 	FLYING_KICK_FALL,
 	FLYING_KICK_LAND,
+	HURT,
+	STUN,
+	FALLEN,
 }
 
 const SPRITE_GROUND_OFFSET := 97.28
@@ -40,6 +43,9 @@ const SIDE_TOP_LIMIT := 478.0
 @export var max_stamina := 100.0
 @export var jab_stamina_cost := 12.0
 @export var stamina_recovery := 24.0
+@export var jab_damage := 15.0
+@export var flying_kick_damage := 24.0
+@export var flying_kick_knockback := 90.0
 @export var jab_hit_time := 0.12
 @export var jab_duration := 0.25
 @export var flying_kick_pose_duration := 0.38
@@ -48,6 +54,14 @@ const SIDE_TOP_LIMIT := 478.0
 @export var flying_kick_recovery_duration := 0.42
 @export var jump_recovery_duration := 0.12
 @export var post_recovery_action_lock := 0.12
+@export var hurt_duration := 0.28
+@export var consecutive_hit_window := 1.2
+@export var hits_to_stun := 3
+@export var stun_duration := 0.9
+@export var fallen_duration := 1.1
+@export var hit_invulnerability_duration := 0.18
+@export var fallen_recovery_invulnerability := 1.25
+@export var invulnerability_blink_interval := 0.08
 
 var state: PlayerState = PlayerState.IDLE
 var state_time := 0.0
@@ -64,6 +78,9 @@ var attack_hit_checked := false
 var health := 100.0
 var stamina := 100.0
 var hurt_flash_timer := 0.0
+var consecutive_hit_count := 0
+var consecutive_hit_timer := 0.0
+var invulnerability_timer := 0.0
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_area: Area2D = $AttackArea
@@ -84,6 +101,10 @@ func _physics_process(delta: float) -> void:
 
 	state_time += delta
 	hurt_flash_timer = maxf(hurt_flash_timer - delta, 0.0)
+	invulnerability_timer = maxf(invulnerability_timer - delta, 0.0)
+	consecutive_hit_timer = maxf(consecutive_hit_timer - delta, 0.0)
+	if consecutive_hit_timer <= 0.0 and state != PlayerState.STUN:
+		consecutive_hit_count = 0
 	_update_action_lock(delta)
 	_update_state(delta, input_vector)
 	_recover_stamina(delta)
@@ -98,11 +119,30 @@ func _physics_process(delta: float) -> void:
 
 
 func take_hit(damage: float, direction: float) -> void:
-	if state == PlayerState.JUMP_LAND or state == PlayerState.FLYING_KICK_LAND:
+	if state == PlayerState.FALLEN or invulnerability_timer > 0.0:
 		return
+
 	health = maxf(health - damage, 0.0)
 	hurt_flash_timer = 0.12
+	invulnerability_timer = hit_invulnerability_duration
 	stats_changed.emit(health, stamina)
+	_cancel_current_action()
+
+	if state == PlayerState.STUN:
+		consecutive_hit_count = 0
+		consecutive_hit_timer = 0.0
+		_change_state(PlayerState.FALLEN)
+		return
+
+	if consecutive_hit_timer <= 0.0:
+		consecutive_hit_count = 0
+	consecutive_hit_count += 1
+	consecutive_hit_timer = consecutive_hit_window
+
+	if consecutive_hit_count >= hits_to_stun:
+		_change_state(PlayerState.STUN)
+	else:
+		_change_state(PlayerState.HURT)
 
 
 func _update_state(delta: float, input_vector: Vector2) -> void:
@@ -126,7 +166,7 @@ func _update_state(delta: float, input_vector: Vector2) -> void:
 
 		PlayerState.JAB:
 			if state_time >= jab_hit_time and not attack_hit_checked:
-				_check_attack_hits(facing)
+				_check_attack_hits(facing, jab_damage)
 			if state_time >= jab_duration:
 				attack_area.monitoring = false
 				_change_state(PlayerState.WALK if input_vector.length_squared() > 0.01 else PlayerState.IDLE)
@@ -142,7 +182,7 @@ func _update_state(delta: float, input_vector: Vector2) -> void:
 
 		PlayerState.FLYING_KICK:
 			if state_time >= flying_kick_hit_time and not attack_hit_checked:
-				_check_attack_hits(air_facing)
+				_check_attack_hits(air_facing, flying_kick_damage, true, flying_kick_knockback)
 			if state_time >= flying_kick_active_duration:
 				attack_area.monitoring = false
 			if vertical_speed <= 0.0 and state_time >= flying_kick_pose_duration:
@@ -156,6 +196,21 @@ func _update_state(delta: float, input_vector: Vector2) -> void:
 			if state_time >= flying_kick_recovery_duration:
 				_finish_recovery_lock()
 				_change_state(PlayerState.WALK if input_vector.length_squared() > 0.01 else PlayerState.IDLE)
+
+		PlayerState.HURT:
+			if state_time >= hurt_duration:
+				_change_state(PlayerState.IDLE)
+
+		PlayerState.STUN:
+			if state_time >= stun_duration:
+				consecutive_hit_count = 0
+				consecutive_hit_timer = 0.0
+				_change_state(PlayerState.IDLE)
+
+		PlayerState.FALLEN:
+			if state_time >= fallen_duration:
+				invulnerability_timer = maxf(invulnerability_timer, fallen_recovery_invulnerability)
+				_change_state(PlayerState.IDLE)
 
 
 func _update_jump_physics(delta: float) -> void:
@@ -271,6 +326,31 @@ func _change_state(next_state: PlayerState) -> void:
 			attack_area.monitoring = false
 			animated_sprite.play("flying_kick_recover")
 
+		PlayerState.HURT:
+			velocity = Vector2.ZERO
+			attack_area.monitoring = false
+			animated_sprite.play("hurt")
+
+		PlayerState.STUN:
+			velocity = Vector2.ZERO
+			attack_area.monitoring = false
+			animated_sprite.play("stun")
+
+		PlayerState.FALLEN:
+			velocity = Vector2.ZERO
+			attack_area.monitoring = false
+			animated_sprite.play("fallen")
+
+
+func _cancel_current_action() -> void:
+	attack_area.monitoring = false
+	attack_hit_checked = true
+	jump_height = 0.0
+	vertical_speed = 0.0
+	jump_hold_timer = 0.0
+	jump_cut_applied = false
+	jump_visual_timer = 0.0
+
 
 func _finish_recovery_lock() -> void:
 	action_locked_until_release = Input.is_action_pressed("punch")
@@ -296,7 +376,7 @@ func _recover_stamina(delta: float) -> void:
 
 
 func _apply_velocity(input_vector: Vector2) -> void:
-	if state == PlayerState.JUMP_PREPARE or state == PlayerState.JUMP_LAND or state == PlayerState.FLYING_KICK_LAND:
+	if state == PlayerState.JUMP_PREPARE or state == PlayerState.JUMP_LAND or state == PlayerState.FLYING_KICK_LAND or _is_reaction_state():
 		velocity = Vector2.ZERO
 	elif state == PlayerState.JAB or state == PlayerState.FLYING_KICK or state == PlayerState.FLYING_KICK_FALL:
 		velocity = input_vector * move_speed * 0.35
@@ -320,32 +400,60 @@ func _is_attack_state() -> bool:
 	return state == PlayerState.JAB or state == PlayerState.FLYING_KICK or state == PlayerState.FLYING_KICK_FALL
 
 
+func _is_reaction_state() -> bool:
+	return state == PlayerState.HURT or state == PlayerState.STUN or state == PlayerState.FALLEN
+
+
+func is_invulnerable() -> bool:
+	return state == PlayerState.FALLEN or invulnerability_timer > 0.0
+
+
 func _set_attack_hitbox(hitbox_size: Vector2) -> void:
 	var rectangle := attack_shape.shape as RectangleShape2D
 	rectangle.size = hitbox_size
 
 
-func _check_attack_hits(hit_direction: float) -> void:
+func _check_attack_hits(
+	hit_direction: float,
+	total_damage: float,
+	knocks_down: bool = false,
+	knockback_distance: float = 0.0
+) -> void:
 	attack_hit_checked = true
+	var targets: Array[Node2D] = []
+	var target_ids: Dictionary = {}
 	for area in attack_area.get_overlapping_areas():
-		_try_hit_area(area, hit_direction)
+		var target: Node2D = _get_valid_hit_target(area)
+		if target == null:
+			continue
+		var target_id: int = target.get_instance_id()
+		if target_ids.has(target_id):
+			continue
+		target_ids[target_id] = true
+		targets.append(target)
+
+	if targets.is_empty():
+		return
+
+	var damage_per_target: float = total_damage / float(targets.size())
+	for target in targets:
+		target.call("take_hit", damage_per_target, hit_direction, knocks_down, knockback_distance)
 
 
-func _try_hit_area(area: Area2D, hit_direction: float) -> bool:
+func _get_valid_hit_target(area: Area2D) -> Node2D:
 	var target: Node2D
 	if area.has_method("take_hit"):
 		target = area
 	elif area.get_parent() is Node2D and area.get_parent().has_method("take_hit"):
 		target = area.get_parent()
 	else:
-		return false
+		return null
 
 	# Beat'em up depth is measured at the characters' feet, not at their torsos.
 	if absf(global_position.y - target.global_position.y) > GROUND_ALIGNMENT_TOLERANCE:
-		return false
+		return null
 
-	target.call("take_hit", hit_direction)
-	return true
+	return target
 
 
 func _arena_top_at_x(x_position: float) -> float:
@@ -367,7 +475,11 @@ func _show_jump_up_frame(frame_index: int) -> void:
 
 func _update_animation(input_vector: Vector2) -> void:
 	animated_sprite.flip_h = (air_facing if _is_airborne_state() or state == PlayerState.JUMP_PREPARE or state == PlayerState.JUMP_LAND or state == PlayerState.FLYING_KICK_LAND else facing) < 0.0
-	animated_sprite.modulate = Color(1.0, 0.55, 0.55, 1.0) if hurt_flash_timer > 0.0 else Color.WHITE
+	var sprite_color := Color(1.0, 0.55, 0.55, 1.0) if hurt_flash_timer > 0.0 else Color.WHITE
+	if invulnerability_timer > 0.0:
+		var blink_phase: int = int(invulnerability_timer / invulnerability_blink_interval)
+		sprite_color.a = 0.35 if blink_phase % 2 == 0 else 1.0
+	animated_sprite.modulate = sprite_color
 
 	if _is_airborne_state():
 		animated_sprite.position = Vector2(0.0, -JUMP_SPRITE_GROUND_OFFSET - jump_height * jump_visual_height_scale)
@@ -417,6 +529,18 @@ func _update_animation(input_vector: Vector2) -> void:
 		PlayerState.FLYING_KICK_LAND:
 			if animated_sprite.animation != &"flying_kick_recover":
 				animated_sprite.play("flying_kick_recover")
+
+		PlayerState.HURT:
+			if animated_sprite.animation != &"hurt":
+				animated_sprite.play("hurt")
+
+		PlayerState.STUN:
+			if animated_sprite.animation != &"stun":
+				animated_sprite.play("stun")
+
+		PlayerState.FALLEN:
+			if animated_sprite.animation != &"fallen":
+				animated_sprite.play("fallen")
 
 
 func _draw() -> void:

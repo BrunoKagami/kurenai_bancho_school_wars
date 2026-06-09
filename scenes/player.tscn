@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_andando.png" id="2_walk1"]
@@ -22,6 +22,10 @@
 [ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Jump_sprites6.png" id="20_flying_kick"]
 [ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Jump_sprites7.png" id="21_jump7"]
 [ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Jump_sprites8.png" id="22_jump8"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_hurt.png" id="23_hurt"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Stun1.png" id="24_stun1"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Stun2.png" id="25_stun2"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_fallen.png" id="26_fallen"]
 
 [sub_resource type="RectangleShape2D" id="PlayerShape"]
 size = Vector2(40, 20)
@@ -34,6 +38,14 @@ size = Vector2(46, 34)
 
 [sub_resource type="SpriteFrames" id="PlayerAnimations"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("26_fallen")
+}],
+"loop": false,
+"name": &"fallen",
+"speed": 1.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("13_standing")
@@ -70,6 +82,14 @@ animations = [{
 }],
 "loop": false,
 "name": &"flying_kick_recover",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("23_hurt")
+}],
+"loop": false,
+"name": &"hurt",
 "speed": 1.0
 }, {
 "frames": [{
@@ -121,6 +141,17 @@ animations = [{
 "loop": false,
 "name": &"jump",
 "speed": 9.5
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("24_stun1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_stun2")
+}],
+"loop": true,
+"name": &"stun",
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,

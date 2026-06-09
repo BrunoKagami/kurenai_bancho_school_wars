@@ -5,13 +5,15 @@ enum EnemyState {
 	CHASE,
 	ATTACK,
 	HURT,
+	KNOCKED_DOWN,
+	STUNNED,
 	BRACE,
 	REPOSITION,
 	DEFEATED,
 }
 
 const SPRITE_GROUND_OFFSET := 97.28
-const DEFEATED_SPRITE_GROUND_OFFSET := 127.68
+const FALLEN_SPRITE_GROUND_OFFSET := 97.28
 const ATTACK_HITBOX_SIZE := Vector2(64.0, 20.0)
 const GROUND_ALIGNMENT_TOLERANCE := 18.0
 const ARENA_LEFT := 75.0
@@ -46,6 +48,9 @@ const CORNER_ESCAPE_MARGIN := 120.0
 @export var attack_duration := 0.42
 @export var attack_cooldown := 0.7
 @export var hurt_duration := 0.22
+@export var knocked_down_duration := 0.75
+@export var stunned_duration := 0.85
+@export var knockback_duration := 0.2
 @export var active_on_start := true
 @export var defeated_disappear_delay := 2.5
 
@@ -58,6 +63,7 @@ var cooldown_timer: float = 0.0
 var contact_timer: float = 0.0
 var reposition_target := Vector2.ZERO
 var previous_position: Vector2 = Vector2.ZERO
+var knockback_velocity: float = 0.0
 var target: Node2D
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -98,16 +104,24 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
-func take_hit(direction: float) -> void:
+func take_hit(
+	damage: float,
+	direction: float,
+	knocks_down: bool = false,
+	knockback_distance: float = 0.0
+) -> void:
 	if not visible:
 		return
 	if state == EnemyState.DEFEATED:
 		return
-	health -= 15.0
+	health -= damage
 	if direction != 0.0:
 		facing = -1.0 if direction > 0.0 else 1.0
 	if health <= 0.0:
 		_change_state(EnemyState.DEFEATED)
+	elif knocks_down:
+		knockback_velocity = direction * knockback_distance / maxf(knockback_duration, 0.01)
+		_change_state(EnemyState.KNOCKED_DOWN)
 	else:
 		_change_state(EnemyState.HURT)
 
@@ -168,6 +182,17 @@ func _update_state() -> void:
 			if state_time >= hurt_duration:
 				_change_state(EnemyState.CHASE)
 
+		EnemyState.KNOCKED_DOWN:
+			var knockback_weight: float = maxf(1.0 - state_time / maxf(knockback_duration, 0.01), 0.0)
+			velocity = Vector2(knockback_velocity * knockback_weight, 0.0)
+			if state_time >= knocked_down_duration:
+				_change_state(EnemyState.STUNNED)
+
+		EnemyState.STUNNED:
+			velocity = Vector2.ZERO
+			if state_time >= stunned_duration:
+				_change_state(EnemyState.CHASE)
+
 		EnemyState.BRACE:
 			velocity = Vector2.ZERO
 			if _can_attack_target():
@@ -221,6 +246,17 @@ func _change_state(next_state: EnemyState) -> void:
 			attack_area.monitoring = false
 			animated_sprite.play("jab")
 
+		EnemyState.KNOCKED_DOWN:
+			_restore_body_collision()
+			attack_area.monitoring = false
+			hurt_shape.disabled = true
+			animated_sprite.play("fallen")
+
+		EnemyState.STUNNED:
+			_restore_body_collision()
+			attack_area.monitoring = false
+			animated_sprite.play("stun")
+
 		EnemyState.BRACE:
 			_restore_body_collision()
 			attack_area.monitoring = false
@@ -237,7 +273,7 @@ func _change_state(next_state: EnemyState) -> void:
 			collision_mask = 0
 			body_shape.disabled = true
 			hurt_shape.disabled = true
-			animated_sprite.play("jump_recover")
+			animated_sprite.play("fallen")
 
 
 func _has_target() -> bool:
@@ -253,8 +289,25 @@ func _face_target() -> void:
 func _can_attack_target() -> bool:
 	if cooldown_timer > 0.0:
 		return false
+	if target.has_method("is_invulnerable") and target.is_invulnerable():
+		return false
+	if _another_enemy_is_attacking():
+		return false
 	var delta_to_target: Vector2 = target.global_position - global_position
 	return absf(global_position.x - _target_attack_x()) <= attack_slot_tolerance and absf(delta_to_target.y) <= GROUND_ALIGNMENT_TOLERANCE
+
+
+func is_attacking() -> bool:
+	return state == EnemyState.ATTACK
+
+
+func _another_enemy_is_attacking() -> bool:
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if enemy == self or not enemy.has_method("is_attacking"):
+			continue
+		if enemy.is_attacking():
+			return true
+	return false
 
 
 func _movement_toward_target() -> Vector2:
@@ -269,7 +322,7 @@ func _movement_toward_target() -> Vector2:
 
 
 func _update_contact_timer(delta: float) -> void:
-	if state == EnemyState.DEFEATED or state == EnemyState.REPOSITION or state == EnemyState.BRACE or not _has_target():
+	if state == EnemyState.DEFEATED or state == EnemyState.KNOCKED_DOWN or state == EnemyState.STUNNED or state == EnemyState.REPOSITION or state == EnemyState.BRACE or not _has_target():
 		contact_timer = 0.0
 		return
 
@@ -306,7 +359,7 @@ func _movement_toward_reposition_target() -> Vector2:
 
 
 func _limit_external_push() -> void:
-	if state == EnemyState.DEFEATED or state == EnemyState.REPOSITION:
+	if state == EnemyState.DEFEATED or state == EnemyState.KNOCKED_DOWN or state == EnemyState.STUNNED or state == EnemyState.REPOSITION:
 		return
 	if not _has_target() or not _is_overlapping_target_space():
 		return
@@ -328,7 +381,7 @@ func _is_overlapping_target_space() -> bool:
 
 
 func _apply_personal_space() -> void:
-	if state == EnemyState.DEFEATED or state == EnemyState.REPOSITION or not _has_target():
+	if state == EnemyState.DEFEATED or state == EnemyState.KNOCKED_DOWN or state == EnemyState.STUNNED or state == EnemyState.REPOSITION or not _has_target():
 		return
 	var delta_from_target: Vector2 = global_position - target.global_position
 	if absf(delta_from_target.x) >= personal_space_x or absf(delta_from_target.y) >= personal_space_y:
@@ -376,6 +429,7 @@ func _restore_body_collision() -> void:
 	collision_layer = DEFAULT_COLLISION_LAYER
 	collision_mask = DEFAULT_COLLISION_MASK
 	body_shape.disabled = false
+	hurt_shape.disabled = false
 
 
 func _disable_body_collision() -> void:
@@ -404,8 +458,8 @@ func _arena_top_at_x(x_position: float) -> float:
 
 func _update_animation() -> void:
 	animated_sprite.flip_h = facing < 0.0
-	if state == EnemyState.DEFEATED:
-		animated_sprite.position = Vector2(0.0, -DEFEATED_SPRITE_GROUND_OFFSET)
+	if state == EnemyState.DEFEATED or state == EnemyState.KNOCKED_DOWN:
+		animated_sprite.position = Vector2(0.0, -FALLEN_SPRITE_GROUND_OFFSET)
 	else:
 		animated_sprite.position = Vector2(0.0, -SPRITE_GROUND_OFFSET)
 

@@ -17,6 +17,8 @@
 [ext_resource type="Texture2D" uid="uid://nt0dk7fvic0o" path="res://sprites/UI/Preenchimento_Stamina.png" id="15_stamina_fill"]
 [ext_resource type="Script" uid="uid://kolthww6f1fp" path="res://scripts/mobile_controls.gd" id="16_mobile_controls"]
 [ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="17_enemy"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_HP_Heart.png" id="18_health_icon"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Stamina_Raio.png" id="19_stamina_icon"]
 
 [sub_resource type="RectangleShape2D" id="DummyObstacleShape"]
 size = Vector2(62, 22)
@@ -113,7 +115,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_left = 14.0
 offset_top = 12.0
-offset_right = 404.0
+offset_right = 430.0
 offset_bottom = 124.0
 mouse_filter = 2
 
@@ -148,9 +150,9 @@ stretch_mode = 5
 
 [node name="HealthBar" type="TextureProgressBar" parent="UI/PlayerHUD" unique_id=2076877044]
 layout_mode = 0
-offset_left = 109.0
+offset_left = 134.0
 offset_top = 39.0
-offset_right = 383.0
+offset_right = 408.0
 offset_bottom = 58.0
 mouse_filter = 2
 value = 100.0
@@ -162,9 +164,9 @@ texture_progress = ExtResource("14_health_fill")
 
 [node name="HealthFrameStart" type="TextureRect" parent="UI/PlayerHUD" unique_id=924069552]
 layout_mode = 0
-offset_left = 103.0
+offset_left = 128.0
 offset_top = 34.0
-offset_right = 115.0
+offset_right = 140.0
 offset_bottom = 64.0
 mouse_filter = 2
 texture = ExtResource("10_bar_start")
@@ -173,9 +175,9 @@ stretch_mode = 5
 
 [node name="HealthFrameMiddle" type="TextureRect" parent="UI/PlayerHUD" unique_id=102961985]
 layout_mode = 0
-offset_left = 115.0
+offset_left = 140.0
 offset_top = 34.0
-offset_right = 377.0
+offset_right = 402.0
 offset_bottom = 64.0
 mouse_filter = 2
 texture = ExtResource("11_bar_middle")
@@ -184,20 +186,31 @@ stretch_mode = 1
 
 [node name="HealthFrameEnd" type="TextureRect" parent="UI/PlayerHUD" unique_id=328211710]
 layout_mode = 0
-offset_left = 377.0
+offset_left = 402.0
 offset_top = 34.0
-offset_right = 389.0
+offset_right = 414.0
 offset_bottom = 64.0
 mouse_filter = 2
 texture = ExtResource("12_bar_end")
 expand_mode = 1
 stretch_mode = 5
 
+[node name="HealthIcon" type="TextureRect" parent="UI/PlayerHUD"]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 38.0
+offset_right = 126.0
+offset_bottom = 59.0
+mouse_filter = 2
+texture = ExtResource("18_health_icon")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="StaminaBar" type="TextureProgressBar" parent="UI/PlayerHUD" unique_id=872451195]
 layout_mode = 0
-offset_left = 109.0
+offset_left = 134.0
 offset_top = 70.0
-offset_right = 299.0
+offset_right = 324.0
 offset_bottom = 89.0
 mouse_filter = 2
 value = 100.0
@@ -209,9 +222,9 @@ texture_progress = ExtResource("15_stamina_fill")
 
 [node name="StaminaFrameStart" type="TextureRect" parent="UI/PlayerHUD" unique_id=1343255413]
 layout_mode = 0
-offset_left = 103.0
+offset_left = 128.0
 offset_top = 65.0
-offset_right = 115.0
+offset_right = 140.0
 offset_bottom = 95.0
 mouse_filter = 2
 texture = ExtResource("10_bar_start")
@@ -220,9 +233,9 @@ stretch_mode = 5
 
 [node name="StaminaFrameMiddle" type="TextureRect" parent="UI/PlayerHUD" unique_id=670533682]
 layout_mode = 0
-offset_left = 115.0
+offset_left = 140.0
 offset_top = 65.0
-offset_right = 293.0
+offset_right = 318.0
 offset_bottom = 95.0
 mouse_filter = 2
 texture = ExtResource("11_bar_middle")
@@ -231,12 +244,23 @@ stretch_mode = 1
 
 [node name="StaminaFrameEnd" type="TextureRect" parent="UI/PlayerHUD" unique_id=517376422]
 layout_mode = 0
-offset_left = 293.0
+offset_left = 318.0
 offset_top = 65.0
-offset_right = 305.0
+offset_right = 330.0
 offset_bottom = 95.0
 mouse_filter = 2
 texture = ExtResource("12_bar_end")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StaminaIcon" type="TextureRect" parent="UI/PlayerHUD"]
+layout_mode = 0
+offset_left = 107.0
+offset_top = 69.0
+offset_right = 122.0
+offset_bottom = 90.0
+mouse_filter = 2
+texture = ExtResource("19_stamina_icon")
 expand_mode = 1
 stretch_mode = 5
 

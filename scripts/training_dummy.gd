@@ -14,7 +14,12 @@ var shadow_wave_size := 1
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
-func take_hit(direction: float) -> void:
+func take_hit(
+	_damage: float,
+	direction: float,
+	_knocks_down: bool = false,
+	_knockback_distance: float = 0.0
+) -> void:
 	if reacting_to_hit:
 		return
 	hit_count += 1

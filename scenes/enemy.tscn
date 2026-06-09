@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemy.gd" id="1_enemy"]
 [ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_andando.png" id="2_walk1"]
@@ -14,8 +14,9 @@
 [ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Jab3.png" id="12_jab3"]
 [ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Standing.png" id="13_standing"]
 [ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Standing2.png" id="14_standing2"]
-[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Jump_sprites7.png" id="15_jump7"]
-[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Jump_sprites8.png" id="16_jump8"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_fallen.png" id="15_fallen"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Stun1.png" id="16_stun1"]
+[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_Stun2.png" id="17_stun2"]
 
 [sub_resource type="RectangleShape2D" id="EnemyShape"]
 size = Vector2(40, 20)
@@ -28,6 +29,14 @@ size = Vector2(64, 20)
 
 [sub_resource type="SpriteFrames" id="EnemyAnimations"]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("15_fallen")
+}],
+"loop": false,
+"name": &"fallen",
+"speed": 1.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("13_standing")
@@ -54,14 +63,14 @@ animations = [{
 "speed": 12.0
 }, {
 "frames": [{
-"duration": 0.35,
-"texture": ExtResource("15_jump7")
+"duration": 1.0,
+"texture": ExtResource("16_stun1")
 }, {
 "duration": 1.0,
-"texture": ExtResource("16_jump8")
+"texture": ExtResource("17_stun2")
 }],
-"loop": false,
-"name": &"jump_recover",
+"loop": true,
+"name": &"stun",
 "speed": 8.0
 }, {
 "frames": [{
