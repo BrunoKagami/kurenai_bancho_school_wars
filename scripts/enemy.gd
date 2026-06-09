@@ -1,5 +1,13 @@
 extends CharacterBody2D
 
+signal target_status_changed(
+	enemy: Node,
+	enemy_name: String,
+	health: float,
+	max_health: float,
+	previous_health: float
+)
+
 enum EnemyState {
 	IDLE,
 	CHASE,
@@ -42,6 +50,7 @@ const CORNER_ESCAPE_MARGIN := 120.0
 @export var reposition_speed := 190.0
 @export var brace_duration := 0.22
 @export var max_external_push_distance := 2.0
+@export var enemy_name := "SOMBRA DESCONHECIDA"
 @export var max_health := 40.0
 @export var attack_damage := 8.0
 @export var attack_hit_time := 0.16
@@ -114,7 +123,9 @@ func take_hit(
 		return
 	if state == EnemyState.DEFEATED:
 		return
-	health -= damage
+	var previous_health: float = health
+	health = maxf(health - damage, 0.0)
+	target_status_changed.emit(self, enemy_name, health, max_health, previous_health)
 	if direction != 0.0:
 		facing = -1.0 if direction > 0.0 else 1.0
 	if health <= 0.0:

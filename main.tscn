@@ -17,8 +17,10 @@
 [ext_resource type="Texture2D" uid="uid://nt0dk7fvic0o" path="res://sprites/UI/Preenchimento_Stamina.png" id="15_stamina_fill"]
 [ext_resource type="Script" uid="uid://kolthww6f1fp" path="res://scripts/mobile_controls.gd" id="16_mobile_controls"]
 [ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="17_enemy"]
-[ext_resource type="Texture2D" path="res://sprites/kurenai/Kurenai_HP_Heart.png" id="18_health_icon"]
-[ext_resource type="Texture2D" path="res://sprites/kurenai/Stamina_Raio.png" id="19_stamina_icon"]
+[ext_resource type="Texture2D" uid="uid://dfuxwujdrmboh" path="res://sprites/kurenai/Kurenai_HP_Heart.png" id="18_health_icon"]
+[ext_resource type="Texture2D" uid="uid://c680pm3v4ig16" path="res://sprites/kurenai/Stamina_Raio.png" id="19_stamina_icon"]
+[ext_resource type="Texture2D" uid="uid://bi02a8e5ntx2b" path="res://sprites/UI/Caixa_Vida_inimigo.png" id="20_enemy_box"]
+[ext_resource type="Texture2D" uid="uid://0s40qcatvehf" path="res://sprites/UI/Face_Desconhecido.png" id="21_unknown_face"]
 
 [sub_resource type="RectangleShape2D" id="DummyObstacleShape"]
 size = Vector2(62, 22)
@@ -195,7 +197,7 @@ texture = ExtResource("12_bar_end")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="HealthIcon" type="TextureRect" parent="UI/PlayerHUD"]
+[node name="HealthIcon" type="TextureRect" parent="UI/PlayerHUD" unique_id=204527933]
 layout_mode = 0
 offset_left = 103.0
 offset_top = 38.0
@@ -253,7 +255,7 @@ texture = ExtResource("12_bar_end")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="StaminaIcon" type="TextureRect" parent="UI/PlayerHUD"]
+[node name="StaminaIcon" type="TextureRect" parent="UI/PlayerHUD" unique_id=1105237673]
 layout_mode = 0
 offset_left = 107.0
 offset_top = 69.0
@@ -261,6 +263,142 @@ offset_right = 122.0
 offset_bottom = 90.0
 mouse_filter = 2
 texture = ExtResource("19_stamina_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="EnemyHUD" type="Control" parent="UI" unique_id=1567527737]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -384.0
+offset_top = 12.0
+offset_right = -14.0
+offset_bottom = 104.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Box" type="TextureRect" parent="UI/EnemyHUD" unique_id=1681386659]
+layout_mode = 0
+offset_right = 370.0
+offset_bottom = 92.0
+mouse_filter = 2
+texture = ExtResource("20_enemy_box")
+expand_mode = 1
+
+[node name="Name" type="Label" parent="UI/EnemyHUD/Box" unique_id=380024437]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 9.0
+offset_right = 274.0
+offset_bottom = 35.0
+theme_override_colors/font_color = Color(0.96, 0.94, 0.9, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 15
+text = "SOMBRA DESCONHECIDA"
+vertical_alignment = 1
+
+[node name="HealthIcon" type="TextureRect" parent="UI/EnemyHUD/Box" unique_id=1277907017]
+layout_mode = 0
+offset_left = 17.0
+offset_top = 43.0
+offset_right = 37.0
+offset_bottom = 61.0
+mouse_filter = 2
+texture = ExtResource("18_health_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HealthBackground" type="TextureRect" parent="UI/EnemyHUD/Box" unique_id=1324626300]
+layout_mode = 0
+offset_left = 49.0
+offset_top = 44.0
+offset_right = 247.0
+offset_bottom = 59.0
+mouse_filter = 2
+texture = ExtResource("13_empty_fill")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="DamageBar" type="TextureProgressBar" parent="UI/EnemyHUD/Box" unique_id=603416390]
+layout_mode = 0
+offset_left = 49.0
+offset_top = 44.0
+offset_right = 247.0
+offset_bottom = 59.0
+mouse_filter = 2
+modulate = Color(0.48, 0.11, 0.11, 1)
+value = 100.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_right = 2
+texture_progress = ExtResource("14_health_fill")
+
+[node name="HealthBar" type="TextureProgressBar" parent="UI/EnemyHUD/Box" unique_id=605927614]
+layout_mode = 0
+offset_left = 49.0
+offset_top = 44.0
+offset_right = 247.0
+offset_bottom = 59.0
+mouse_filter = 2
+value = 100.0
+nine_patch_stretch = true
+stretch_margin_left = 2
+stretch_margin_right = 2
+texture_progress = ExtResource("14_health_fill")
+
+[node name="HealthFrameStart" type="TextureRect" parent="UI/EnemyHUD/Box" unique_id=2087274626]
+layout_mode = 0
+offset_left = 43.0
+offset_top = 37.0
+offset_right = 55.0
+offset_bottom = 67.0
+mouse_filter = 2
+texture = ExtResource("10_bar_start")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="HealthFrameMiddle" type="TextureRect" parent="UI/EnemyHUD/Box" unique_id=1713329016]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 37.0
+offset_right = 241.0
+offset_bottom = 67.0
+mouse_filter = 2
+texture = ExtResource("11_bar_middle")
+expand_mode = 1
+stretch_mode = 1
+
+[node name="HealthFrameEnd" type="TextureRect" parent="UI/EnemyHUD/Box" unique_id=1319748476]
+layout_mode = 0
+offset_left = 241.0
+offset_top = 37.0
+offset_right = 253.0
+offset_bottom = 67.0
+mouse_filter = 2
+texture = ExtResource("12_bar_end")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="FaceShadow" type="ColorRect" parent="UI/EnemyHUD" unique_id=2082556946]
+layout_mode = 0
+offset_left = 280.0
+offset_top = 11.0
+offset_right = 349.0
+offset_bottom = 81.0
+mouse_filter = 2
+color = Color(0.015, 0.015, 0.02, 0.92)
+
+[node name="Face" type="TextureRect" parent="UI/EnemyHUD" unique_id=1367656964]
+layout_mode = 0
+offset_left = 284.0
+offset_top = 13.0
+offset_right = 345.0
+offset_bottom = 78.0
+mouse_filter = 2
+texture = ExtResource("21_unknown_face")
 expand_mode = 1
 stretch_mode = 5
 
